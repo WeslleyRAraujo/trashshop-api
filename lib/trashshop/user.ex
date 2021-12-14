@@ -46,4 +46,9 @@ defmodule TrashShop.User do
     |> changeset(user)
     |> Repo.insert()
   end
+
+  def email_exists?(email) do
+    query = from u in TrashShop.User, where: u.email == ^email
+    Repo.exists?(query)
+  end
 end

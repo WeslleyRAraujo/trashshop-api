@@ -25,7 +25,7 @@ defmodule TrashShopWeb.Router do
 
   scope "/api/v1", TrashShopWeb do
     post "/login", LoginController, :create
-    # post "/create_user", UserController, :create
+    post "/create_user", UserController, :create
   end
 
   scope "/api/v1", TrashShopWeb do

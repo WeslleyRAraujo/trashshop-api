@@ -30,7 +30,7 @@ defmodule TrashShopWeb.LoginController do
       {:error, errors} ->
         conn
         |> put_status(:ok)
-        |> json(errors)
+        |> json(%{error: errors})
     end
   end
 
