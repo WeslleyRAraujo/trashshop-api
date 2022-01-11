@@ -21,7 +21,15 @@ defmodule TrashShop.Product do
     |> unique_constraint(:code)
   end
 
-  def register(product) do
+  def register(%{"name" => name, "price" => price}) do
+    insert(%{
+      name: name,
+      price: price,
+      code: Ecto.UUID.generate()
+    })
+  end
+
+  def insert(product) do
     %TrashShop.Product{}
     |> changeset(product)
     |> Repo.insert()

@@ -26,9 +26,9 @@ defmodule TrashShop.User do
   end
 
   def find(email: email) do
-    query = 
-      from u in TrashShop.User, 
-      where: u.email == ^email
+    query =
+      from u in TrashShop.User,
+        where: u.email == ^email
 
     Repo.one(query)
   end
@@ -36,7 +36,7 @@ defmodule TrashShop.User do
   def find(email: email, password: password) do
     query =
       from u in TrashShop.User,
-      where: u.email == ^email and u.password == ^password
+        where: u.email == ^email and u.password == ^password
 
     Repo.one(query)
   end

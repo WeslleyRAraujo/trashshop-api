@@ -4,17 +4,20 @@ defmodule TrashShopWeb.LoginController do
 
   import Ecto.Changeset
 
-  defparams login_schema %{
-    email!: :string,
-    password!: :string
-  }
+  defparams(
+    login_schema(%{
+      email!: :string,
+      password!: :string
+    })
+  )
 
   def create(conn, _params) do
     case validate_params(conn.body_params) do
-      :ok -> 
+      :ok ->
         %{"email" => email, "password" => password} = conn.body_params
+
         case TrashShop.User.find(email: email, password: password) do
-          nil -> 
+          nil ->
             conn
             |> put_status(:not_found)
             |> json(%{error: "Usuário inválido"})
@@ -29,7 +32,7 @@ defmodule TrashShopWeb.LoginController do
 
       {:error, errors} ->
         conn
-        |> put_status(:ok)
+        |> put_status(:bad_request)
         |> json(%{error: errors})
     end
   end
@@ -38,7 +41,7 @@ defmodule TrashShopWeb.LoginController do
     data
     |> login_schema()
     |> validate_format(:email, ~r/@/)
-    |> traverse_errors(fn 
+    |> traverse_errors(fn
       {_msg, [validation: :required]} ->
         "Campo obrigatorio"
 

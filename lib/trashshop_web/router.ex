@@ -1,7 +1,5 @@
 defmodule TrashShopWeb.Router do
   use TrashShopWeb, :router
-  
-  import TrashShopWeb.Authentication
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -14,7 +12,7 @@ defmodule TrashShopWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug :authenticate
+    plug TrashShopWeb.Authentication
   end
 
   scope "/", TrashShopWeb do
@@ -30,7 +28,8 @@ defmodule TrashShopWeb.Router do
 
   scope "/api/v1", TrashShopWeb do
     pipe_through :api
-    
+
+    post "/product", ProductController, :create
   end
 
   # Other scopes may use custom stacks.

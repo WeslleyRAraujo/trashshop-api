@@ -4,15 +4,17 @@ defmodule TrashShopWeb.UserController do
 
   import Ecto.Changeset
 
-  defparams user_creation_schema %{
-    name!: :string,
-    age!: :integer,
-    email!: :string,
-    password!: :string
-  }
+  defparams(
+    user_creation_schema(%{
+      name!: :string,
+      age!: :integer,
+      email!: :string,
+      password!: :string
+    })
+  )
 
   def create(conn, _params) do
-    case validate_params(conn.body_params) do 
+    case validate_params(conn.body_params) do
       :ok ->
         {:ok, user} = TrashShop.User.create(conn.body_params)
 
@@ -22,7 +24,7 @@ defmodule TrashShopWeb.UserController do
 
       {:error, errors} ->
         conn
-        |> put_status(:ok)
+        |> put_status(:bad_request)
         |> json(%{error: errors})
     end
   end
@@ -30,10 +32,12 @@ defmodule TrashShopWeb.UserController do
   def validate_params(data) do
     data
     |> user_creation_schema()
-    |> validate_change(:email, fn :email, email -> 
-      if TrashShop.User.email_exists?(email), do: [email: "E-mail ja cadastrado no sistema"], else: []
+    |> validate_change(:email, fn :email, email ->
+      if TrashShop.User.email_exists?(email),
+        do: [email: "E-mail ja cadastrado no sistema"],
+        else: []
     end)
-    |> validate_change(:age, fn :age, age -> 
+    |> validate_change(:age, fn :age, age ->
       if is_integer(age), do: [], else: [age: "Idade inválida"]
     end)
     |> traverse_errors(fn
@@ -49,7 +53,10 @@ defmodule TrashShopWeb.UserController do
   def format_errors(errors) when errors == %{}, do: :ok
 
   def format_errors(errors) do
-    {:error, Enum.into(Enum.map(errors, fn {k, [msg]} -> {k, msg} end), %{})}
+    {:error,
+     errors
+     |> Enum.map(fn {k, [msg]} -> {k, msg} end)
+     |> Enum.into(%{})}
   end
 
   def take_relevant_data(user) do
