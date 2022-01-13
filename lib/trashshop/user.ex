@@ -25,6 +25,8 @@ defmodule TrashShop.User do
     |> unique_constraint(:email)
   end
 
+  def find(id: id), do: Repo.get(TrashShop.User, id)
+
   def find(email: email) do
     query =
       from u in TrashShop.User,
@@ -50,5 +52,14 @@ defmodule TrashShop.User do
   def email_exists?(email) do
     query = from u in TrashShop.User, where: u.email == ^email
     Repo.exists?(query)
+  end
+
+  def get_all(), do: Repo.all(TrashShop.User)
+
+  def delete(id) do
+    case find(id: id) do
+      nil -> {:error, :not_found}
+      user -> Repo.delete(user)
+    end
   end
 end

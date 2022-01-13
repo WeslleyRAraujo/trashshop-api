@@ -12,7 +12,11 @@ defmodule TrashShopWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug TrashShopWeb.Authentication
+    plug TrashShopWeb.Plugs.Authentication
+  end
+
+  pipeline :api_administration do
+    plug TrashShopWeb.Plugs.Administration
   end
 
   scope "/", TrashShopWeb do
@@ -32,8 +36,10 @@ defmodule TrashShopWeb.Router do
     post "/product", ProductController, :create
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", TrashShopWeb do
-  #   pipe_through :api
-  # end
+  scope "/api/v1/administration", TrashShopWeb do
+    pipe_through :api_administration
+
+    get "/all_users", AdministrationController, :show
+    delete "/user:id", AdministrationController, :delete
+  end
 end

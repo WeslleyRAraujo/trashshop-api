@@ -20,7 +20,7 @@ defmodule TrashShopWeb.LoginController do
           nil ->
             conn
             |> put_status(:not_found)
-            |> json(%{error: "Usuário inválido"})
+            |> json(%{error: "Usuário não encontrado"})
 
           _user ->
             {:ok, token, _claims} = TrashShop.Guardian.encode_and_sign(%{email: email})

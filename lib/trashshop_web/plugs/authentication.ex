@@ -1,7 +1,8 @@
-defmodule TrashShopWeb.Authentication do
+defmodule TrashShopWeb.Plugs.Authentication do
   use TrashShopWeb, :controller
   import Plug.Conn
   alias TrashShop.Guardian, as: GuardianModule
+  alias TrashShopWeb.HTTPErrors
 
   def init(options), do: options
 
@@ -10,11 +11,18 @@ defmodule TrashShopWeb.Authentication do
   def authenticate(conn) do
     with {:ok, token} <- get_token(conn),
          {:ok, claims} <- GuardianModule.decode_and_verify(token),
+         true <- check_if_email_exists(claims),
          {:ok, user} <- GuardianModule.resource_from_claims(claims) do
       assign(conn, :user, user)
     else
-      {:error, :token_not_found} -> throw_error(conn)
-      _ -> throw_error(conn)
+      {:error, :token_not_found} ->
+        HTTPErrors.unauthorized(conn)
+
+      false ->
+        HTTPErrors.unauthorized(conn)
+
+      _ ->
+        HTTPErrors.unauthorized(conn)
     end
   end
 
@@ -25,10 +33,7 @@ defmodule TrashShopWeb.Authentication do
     end
   end
 
-  def throw_error(conn) do
-    conn
-    |> put_status(:unauthorized)
-    |> json(%{})
-    |> halt()
+  def check_if_email_exists(%{"sub" => email} = _claims) do
+    if TrashShop.User.email_exists?(email: email), do: true, else: false
   end
 end
