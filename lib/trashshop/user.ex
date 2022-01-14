@@ -35,22 +35,48 @@ defmodule TrashShop.User do
     Repo.one(query)
   end
 
-  def find(email: email, password: password) do
-    query =
-      from u in TrashShop.User,
-        where: u.email == ^email and u.password == ^password
+  def find_and_check_credential(email: email, password: password) do
+    case find(email: email) do
+      nil ->
+        nil
 
-    Repo.one(query)
+      user ->
+        case check_password(user.password, password) do
+          {:ok, %{password_hash: _password_hash}} -> user
+          {:error, "invalid password"} -> nil
+        end
+    end
+  end
+
+  def check_password(hash, password) do
+    Argon2.check_pass(%{password_hash: hash}, password)
   end
 
   def create(user) do
     %TrashShop.User{}
-    |> changeset(user)
+    |> changeset(%{user | password: make_password_hash(user.password)})
     |> Repo.insert()
   end
 
+  def make_password_hash(pass) do
+    pass
+    |> Argon2.add_hash()
+    |> Map.get(:password_hash)
+  end
+
   def email_exists?(email) do
-    query = from u in TrashShop.User, where: u.email == ^email
+    query =
+      from u in TrashShop.User,
+        where: u.email == ^email
+
+    Repo.exists?(query)
+  end
+
+  def user_exists?(id) do
+    query =
+      from u in TrashShop.User,
+        where: u.id == ^id
+
     Repo.exists?(query)
   end
 

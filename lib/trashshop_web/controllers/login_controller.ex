@@ -4,6 +4,8 @@ defmodule TrashShopWeb.LoginController do
 
   import Ecto.Changeset
 
+  alias TrashShopWeb.HTTPErrors
+
   defparams(
     login_schema(%{
       email!: :string,
@@ -12,28 +14,22 @@ defmodule TrashShopWeb.LoginController do
   )
 
   def create(conn, _params) do
-    case validate_params(conn.body_params) do
-      :ok ->
-        %{"email" => email, "password" => password} = conn.body_params
-
-        case TrashShop.User.find(email: email, password: password) do
-          nil ->
-            conn
-            |> put_status(:not_found)
-            |> json(%{error: "Usuário não encontrado"})
-
-          _user ->
-            {:ok, token, _claims} = TrashShop.Guardian.encode_and_sign(%{email: email})
-
-            conn
-            |> put_status(:ok)
-            |> json(%{data: %{token: token}})
-        end
+    with :ok <- validate_params(conn.body_params),
+         {:ok, user} <-
+           check_credentials(conn.body_params["email"], conn.body_params["password"]),
+         {:ok, token, _claims} <- TrashShop.Guardian.encode_and_sign(%{id: user.id}) do
+      conn
+      |> put_status(:ok)
+      |> json(%{data: %{token: token}})
+    else
+      {:error, :not_found} ->
+        HTTPErrors.not_found(conn, "Usuário não encontrado")
 
       {:error, errors} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: errors})
+        HTTPErrors.bad_request(conn, errors)
+
+      _ ->
+        HTTPErrors.bad_request(conn)
     end
   end
 
@@ -57,7 +53,10 @@ defmodule TrashShopWeb.LoginController do
     {:error, Enum.into(Enum.map(errors, fn {k, [msg]} -> {k, msg} end), %{})}
   end
 
-  def find_user(%{email: email, password: password}) do
-    TrashShop.User.find(email: email, password: password)
+  def check_credentials(email, password) do
+    case TrashShop.User.find_and_check_credential(email: email, password: password) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
   end
 end

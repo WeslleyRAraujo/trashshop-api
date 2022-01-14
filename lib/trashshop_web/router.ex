@@ -19,11 +19,11 @@ defmodule TrashShopWeb.Router do
     plug TrashShopWeb.Plugs.Administration
   end
 
-  scope "/", TrashShopWeb do
-    pipe_through :browser
+  # scope "/", TrashShopWeb do
+  #   pipe_through :browser
 
-    get "/", PageController, :index
-  end
+  #   get "/", PageController, :index
+  # end
 
   scope "/api/v1", TrashShopWeb do
     post "/login", LoginController, :create
@@ -34,6 +34,7 @@ defmodule TrashShopWeb.Router do
     pipe_through :api
 
     post "/product", ProductController, :create
+    get "/user_info/:id", UserController, :info
   end
 
   scope "/api/v1/administration", TrashShopWeb do

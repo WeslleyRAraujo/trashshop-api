@@ -11,7 +11,7 @@ defmodule TrashShopWeb.Plugs.Authentication do
   def authenticate(conn) do
     with {:ok, token} <- get_token(conn),
          {:ok, claims} <- GuardianModule.decode_and_verify(token),
-         true <- check_if_email_exists(claims),
+         true <- check_if_user_exists(claims),
          {:ok, user} <- GuardianModule.resource_from_claims(claims) do
       assign(conn, :user, user)
     else
@@ -28,12 +28,18 @@ defmodule TrashShopWeb.Plugs.Authentication do
 
   def get_token(conn) do
     case get_req_header(conn, "authorization") do
-      ["Bearer " <> token] -> {:ok, token}
-      [] -> {:error, :token_not_found}
+      ["Bearer " <> token] ->
+        {:ok, token}
+
+      [] ->
+        {:error, :token_not_found}
+
+      _ ->
+        {:error, :token_not_found}
     end
   end
 
-  def check_if_email_exists(%{"sub" => email} = _claims) do
-    if TrashShop.User.email_exists?(email: email), do: true, else: false
+  def check_if_user_exists(%{"sub" => id} = _claims) do
+    if TrashShop.User.user_exists?(id), do: true, else: false
   end
 end
