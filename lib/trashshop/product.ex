@@ -3,6 +3,7 @@ defmodule TrashShop.Product do
 
   alias TrashShop.Repo
   import Ecto.Changeset
+  import Ecto.Query
 
   schema "products" do
     field :code, :string
@@ -36,4 +37,12 @@ defmodule TrashShop.Product do
   end
 
   def get_all(), do: Repo.all(TrashShop.Product)
+
+  def find(code: code) do
+    query =
+      from p in TrashShop.Product,
+        where: p.code == ^code
+
+    Repo.one(query)
+  end
 end

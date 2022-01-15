@@ -33,6 +33,12 @@ defmodule TrashShopWeb.ProductController do
     |> render("index.json", product: TrashShop.Product.get_all())
   end
 
+  def show_by_id(conn, %{"code" => code}) do
+    conn
+    |> put_status(:ok)
+    |> render("product.json", product: TrashShop.Product.find(code: code))
+  end
+
   def validate_params(data) do
     data
     |> product_creation_schema()

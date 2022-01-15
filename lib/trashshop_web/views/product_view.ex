@@ -5,6 +5,8 @@ defmodule TrashShopWeb.ProductView do
     %{products: render_many(products, __MODULE__, "product.json")}
   end
 
+  def render("product.json", %{product: nil}), do: %{}
+
   def render("product.json", %{product: product}) do
     %{
       code: product.code,
