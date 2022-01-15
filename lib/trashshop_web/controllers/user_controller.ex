@@ -55,7 +55,7 @@ defmodule TrashShopWeb.UserController do
     data
     |> user_creation_schema()
     |> validate_change(:email, fn :email, email ->
-      if TrashShop.User.email_exists?(email),
+      if TrashShop.User.registered_email?(email),
         do: [email: "E-mail ja cadastrado no sistema"],
         else: []
     end)

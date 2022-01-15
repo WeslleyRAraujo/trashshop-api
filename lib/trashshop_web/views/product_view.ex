@@ -11,7 +11,16 @@ defmodule TrashShopWeb.ProductView do
     %{
       code: product.code,
       name: product.name,
-      price: product.price
+      price: product.price,
+      user_id: product.user_id,
+      user: show_user(product)
     }
+  end
+
+  def show_user(product) do
+    case product.user do
+      %Ecto.Association.NotLoaded{} -> %{}
+      _ -> product.user
+    end
   end
 end

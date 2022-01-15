@@ -1,6 +1,5 @@
 defmodule TrashShopWeb.HTTPErrors do
   use TrashShopWeb, :controller
-  import Plug.Conn
 
   def throw_error(conn, error, status) do
     conn

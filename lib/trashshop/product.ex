@@ -10,6 +10,8 @@ defmodule TrashShop.Product do
     field :name, :string
     field :price, :integer
 
+    belongs_to :user, TrashShop.User
+
     has_many :transactions, TrashShop.Transaction
 
     timestamps()
@@ -17,15 +19,16 @@ defmodule TrashShop.Product do
 
   def changeset(product, params \\ %{}) do
     product
-    |> cast(params, [:code, :name, :price])
-    |> validate_required([:code, :name, :price])
+    |> cast(params, [:code, :name, :price, :user_id])
+    |> validate_required([:code, :name, :price, :user_id])
     |> unique_constraint(:code)
   end
 
-  def register(%{"name" => name, "price" => price}) do
+  def register(%{"name" => name, "price" => price, "user_id" => user_id}) do
     insert(%{
       name: name,
       price: price,
+      user_id: user_id,
       code: Ecto.UUID.generate()
     })
   end
@@ -36,13 +39,42 @@ defmodule TrashShop.Product do
     |> Repo.insert()
   end
 
-  def get_all(), do: Repo.all(TrashShop.Product)
+  def get_all() do
+    query =
+      from p in TrashShop.Product,
+        join: u in TrashShop.User,
+        on: p.user_id == u.id,
+        select: %{
+          p
+          | user: %{
+              name: u.name
+            }
+        }
+
+    Repo.all(query)
+  end
 
   def find(code: code) do
     query =
       from p in TrashShop.Product,
-        where: p.code == ^code
+        where: p.code == ^code,
+        join: u in TrashShop.User,
+        on: p.user_id == u.id,
+        select: %{
+          p
+          | user: %{
+              name: u.name
+            }
+        }
 
     Repo.one(query)
+  end
+
+  def find(user_id: user_id) do
+    query =
+      from p in TrashShop.Product,
+        where: p.user_id == ^user_id
+
+    Repo.all(query)
   end
 end

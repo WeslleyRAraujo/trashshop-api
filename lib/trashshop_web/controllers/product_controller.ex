@@ -4,10 +4,13 @@ defmodule TrashShopWeb.ProductController do
 
   import Ecto.Changeset
 
+  alias TrashShopWeb.HTTPErrors
+
   defparams(
     product_creation_schema(%{
       name!: :string,
-      price!: :integer
+      price!: :integer,
+      user_id!: :integer
     })
   )
 
@@ -21,9 +24,7 @@ defmodule TrashShopWeb.ProductController do
         |> json(%{data: take_relevant_data(product)})
 
       {:error, errors} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: errors})
+        HTTPErrors.bad_request(conn, errors)
     end
   end
 
@@ -39,13 +40,25 @@ defmodule TrashShopWeb.ProductController do
     |> render("product.json", product: TrashShop.Product.find(code: code))
   end
 
+  def show_by_user(conn, %{"user_id" => user_id}) do
+    conn
+    |> put_status(:ok)
+    |> render("index.json", product: TrashShop.Product.find(user_id: user_id))
+  end
+
   def validate_params(data) do
     data
     |> product_creation_schema()
     |> validate_change(:price, fn :price, price ->
       if price > 0, do: [], else: [price: "Preço inválido"]
     end)
-    |> traverse_errors(fn {_msg, [validation: :required]} -> "Campo obrigatorio" end)
+    |> validate_change(:user_id, fn :user_id, user_id ->
+      if TrashShop.User.user_exists?(user_id), do: [], else: [user_id: "Usuário não encontrado"]
+    end)
+    |> traverse_errors(fn
+      {_msg, [validation: :required]} -> "Campo obrigatorio"
+      {msg, _} -> msg
+    end)
     |> format_errors()
   end
 

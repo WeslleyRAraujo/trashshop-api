@@ -36,6 +36,7 @@ defmodule TrashShopWeb.Router do
     post "/product", ProductController, :create
     get "/product", ProductController, :show
     get "/product/:code", ProductController, :show_by_id
+    get "/product/user/:user_id", ProductController, :show_by_user
     get "/user_info/:id", UserController, :info
   end
 

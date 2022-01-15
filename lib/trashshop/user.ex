@@ -12,8 +12,6 @@ defmodule TrashShop.User do
     field :password, :string
     field :balance, :integer, default: 0
 
-    has_many :transactions, TrashShop.Transaction
-
     timestamps()
   end
 
@@ -64,7 +62,7 @@ defmodule TrashShop.User do
     |> Map.get(:password_hash)
   end
 
-  def email_exists?(email) do
+  def registered_email?(email) do
     query =
       from u in TrashShop.User,
         where: u.email == ^email
