@@ -3,6 +3,8 @@ defmodule TrashShopWeb.AdministrationController do
 
   alias TrashShop.User
 
+  alias TrashShopWeb.HTTPErrors
+
   def show(conn, _params) do
     conn
     |> put_status(:ok)
@@ -15,7 +17,7 @@ defmodule TrashShopWeb.AdministrationController do
         resp(conn, :ok, "")
 
       {:error, :not_found} ->
-        resp(conn, :not_found, "")
+        HTTPErrors.not_found(conn, "Usuário não encontrado")
     end
   end
 end

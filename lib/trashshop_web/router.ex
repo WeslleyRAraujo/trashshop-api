@@ -42,6 +42,6 @@ defmodule TrashShopWeb.Router do
     pipe_through :api_administration
 
     get "/all_users", AdministrationController, :show
-    delete "/user:id", AdministrationController, :delete
+    delete "/user/:id", AdministrationController, :delete
   end
 end
