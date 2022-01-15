@@ -34,6 +34,7 @@ defmodule TrashShopWeb.Router do
     pipe_through :api
 
     post "/product", ProductController, :create
+    get "/product", ProductController, :show
     get "/user_info/:id", UserController, :info
   end
 

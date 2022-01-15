@@ -34,4 +34,6 @@ defmodule TrashShop.Product do
     |> changeset(product)
     |> Repo.insert()
   end
+
+  def get_all(), do: Repo.all(TrashShop.Product)
 end

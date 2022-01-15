@@ -27,6 +27,12 @@ defmodule TrashShopWeb.ProductController do
     end
   end
 
+  def show(conn, _params) do
+    conn
+    |> put_status(:ok)
+    |> render("index.json", product: TrashShop.Product.get_all())
+  end
+
   def validate_params(data) do
     data
     |> product_creation_schema()
