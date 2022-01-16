@@ -36,12 +36,12 @@ defmodule TrashShop.User do
   def find_and_check_credential(email: email, password: password) do
     case find(email: email) do
       nil ->
-        nil
+        {:error, :not_found}
 
       user ->
         case check_password(user.password, password) do
           {:ok, %{password_hash: _password_hash}} -> user
-          {:error, "invalid password"} -> nil
+          {:error, "invalid password"} -> {:error, :invalid_password}
         end
     end
   end

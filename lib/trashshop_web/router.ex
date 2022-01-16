@@ -1,5 +1,8 @@
 defmodule TrashShopWeb.Router do
   use TrashShopWeb, :router
+  use Plug.ErrorHandler
+
+  alias TrashShopWeb.HTTPErrors
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -33,11 +36,17 @@ defmodule TrashShopWeb.Router do
   scope "/api/v1", TrashShopWeb do
     pipe_through :api
 
-    post "/product", ProductController, :create
-    get "/product", ProductController, :show
-    get "/product/:code", ProductController, :show_by_id
-    get "/product/user/:user_id", ProductController, :show_by_user
     get "/user_info/:id", UserController, :info
+  end
+
+  scope "/api/v1/product", TrashShopWeb do
+    pipe_through :api
+
+    post "/", ProductController, :create
+    get "/", ProductController, :show
+    get "/:code", ProductController, :show_by_id
+    get "/user/:user_id", ProductController, :show_by_user
+    delete "/:code", ProductController, :delete
   end
 
   scope "/api/v1/administration", TrashShopWeb do
@@ -45,5 +54,16 @@ defmodule TrashShopWeb.Router do
 
     get "/all_users", AdministrationController, :show
     delete "/user/:id", AdministrationController, :delete
+  end
+
+  def handle_errors(conn, _details) do
+    case conn.status do
+      500 ->
+        HTTPErrors.internal_error(conn)
+
+      404 ->
+        render(conn, "404.json")
+        HTTPErrors.not_found(conn)
+    end
   end
 end

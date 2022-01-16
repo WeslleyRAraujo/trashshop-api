@@ -4,12 +4,13 @@ defmodule TrashShopWeb.ProductController do
 
   import Ecto.Changeset
 
+  alias TrashShop.Product
   alias TrashShopWeb.HTTPErrors
 
   defparams(
     product_creation_schema(%{
       name!: :string,
-      price!: :integer,
+      price!: :float,
       user_id!: :integer
     })
   )
@@ -17,7 +18,7 @@ defmodule TrashShopWeb.ProductController do
   def create(conn, _params) do
     case validate_params(conn.body_params) do
       :ok ->
-        {:ok, product} = TrashShop.Product.register(conn.body_params)
+        {:ok, product} = Product.register(conn.body_params)
 
         conn
         |> put_status(:created)
@@ -31,19 +32,35 @@ defmodule TrashShopWeb.ProductController do
   def show(conn, _params) do
     conn
     |> put_status(:ok)
-    |> render("index.json", product: TrashShop.Product.get_all())
+    |> render("index.json", product: Product.get_all())
   end
 
   def show_by_id(conn, %{"code" => code}) do
     conn
     |> put_status(:ok)
-    |> render("product.json", product: TrashShop.Product.find(code: code))
+    |> render("product.json", product: Product.find(code: code))
   end
 
   def show_by_user(conn, %{"user_id" => user_id}) do
     conn
     |> put_status(:ok)
-    |> render("index.json", product: TrashShop.Product.find(user_id: user_id))
+    |> render("index.json", product: Product.find(user_id: user_id))
+  end
+
+  def delete(conn, %{"code" => code}) do
+    case Product.find(code: code) do
+      nil ->
+        HTTPErrors.not_found(conn)
+
+      product ->
+        if product.user_id == conn.assigns.user.id do
+          {:ok, _product} = Product.delete(product)
+
+          resp(conn, :ok, "")
+        else
+          HTTPErrors.unauthorized(conn)
+        end
+    end
   end
 
   def validate_params(data) do

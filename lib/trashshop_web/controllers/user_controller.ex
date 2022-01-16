@@ -4,6 +4,7 @@ defmodule TrashShopWeb.UserController do
 
   import Ecto.Changeset
 
+  alias TrashShop.User
   alias TrashShopWeb.HTTPErrors
 
   defparams(
@@ -21,7 +22,7 @@ defmodule TrashShopWeb.UserController do
         {:ok, user} =
           conn.body_params
           |> format_user_payload()
-          |> TrashShop.User.create()
+          |> User.create()
 
         conn
         |> put_status(:created)
@@ -42,7 +43,7 @@ defmodule TrashShopWeb.UserController do
   end
 
   def info(conn, %{"id" => id}) do
-    case TrashShop.User.find(id: id) do
+    case User.find(id: id) do
       nil ->
         HTTPErrors.not_found(conn)
 
@@ -55,7 +56,7 @@ defmodule TrashShopWeb.UserController do
     data
     |> user_creation_schema()
     |> validate_change(:email, fn :email, email ->
-      if TrashShop.User.registered_email?(email),
+      if User.registered_email?(email),
         do: [email: "E-mail ja cadastrado no sistema"],
         else: []
     end)

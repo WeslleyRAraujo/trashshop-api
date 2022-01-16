@@ -19,4 +19,8 @@ defmodule TrashShopWeb.HTTPErrors do
   def unauthorized(conn, message \\ "unauthorized") do
     throw_error(conn, message, 401)
   end
+
+  def internal_error(conn, message \\ "internal_error") do
+    throw_error(conn, message, 500)
+  end
 end

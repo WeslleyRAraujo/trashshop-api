@@ -8,7 +8,7 @@ defmodule TrashShop.Product do
   schema "products" do
     field :code, :string
     field :name, :string
-    field :price, :integer
+    field :price, :float
 
     belongs_to :user, TrashShop.User
 
@@ -76,5 +76,9 @@ defmodule TrashShop.Product do
         where: p.user_id == ^user_id
 
     Repo.all(query)
+  end
+
+  def delete(product) do
+    Repo.delete(product)
   end
 end
