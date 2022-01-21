@@ -44,7 +44,7 @@ defmodule TrashShopWeb.ProductController do
   def show_by_user(conn, %{"user_id" => user_id}) do
     conn
     |> put_status(:ok)
-    |> render("index.json", product: Product.find(user_id: user_id))
+    |> render("index.json", product: Product.find_all(user_id: user_id))
   end
 
   def delete(conn, %{"code" => code}) do

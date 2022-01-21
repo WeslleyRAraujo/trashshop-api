@@ -70,7 +70,7 @@ defmodule TrashShop.Product do
     Repo.one(query)
   end
 
-  def find(user_id: user_id) do
+  def find_all(user_id: user_id) do
     query =
       from p in TrashShop.Product,
         where: p.user_id == ^user_id

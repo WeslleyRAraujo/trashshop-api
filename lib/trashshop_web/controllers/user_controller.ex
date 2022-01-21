@@ -33,15 +33,6 @@ defmodule TrashShopWeb.UserController do
     end
   end
 
-  def format_user_payload(body_params) do
-    %{
-      name: body_params["name"],
-      email: body_params["email"],
-      password: body_params["password"],
-      age: body_params["age"]
-    }
-  end
-
   def info(conn, %{"id" => id}) do
     case User.find(id: id) do
       nil ->
@@ -50,6 +41,34 @@ defmodule TrashShopWeb.UserController do
       user ->
         render(conn, "user.json", user: user)
     end
+  end
+
+  def show(conn, _params) do
+    conn
+    |> put_status(:ok)
+    |> render("index.json", user: User.get_all())
+  end
+
+  def delete(conn, %{"id" => id}) do
+    case User.delete(id) do
+      {:ok, _user} ->
+        resp(conn, :ok, "")
+
+      {:error, :not_found} ->
+        HTTPErrors.not_found(conn, "Usuário não encontrado")
+
+      {:error, error} ->
+        HTTPErrors.internal_error(conn, error)
+    end
+  end
+
+  def format_user_payload(body_params) do
+    %{
+      name: body_params["name"],
+      email: body_params["email"],
+      password: body_params["password"],
+      age: body_params["age"]
+    }
   end
 
   def validate_params(data) do

@@ -3,6 +3,7 @@ defmodule TrashShopWeb.Router do
   use Plug.ErrorHandler
 
   alias TrashShopWeb.HTTPErrors
+  alias ThingWeb.RateLimiter
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,10 +17,12 @@ defmodule TrashShopWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug TrashShopWeb.Plugs.Authentication
+    plug RateLimiter
   end
 
   pipeline :api_administration do
     plug TrashShopWeb.Plugs.Administration
+    plug RateLimiter
   end
 
   # scope "/", TrashShopWeb do
@@ -52,8 +55,9 @@ defmodule TrashShopWeb.Router do
   scope "/api/v1/administration", TrashShopWeb do
     pipe_through :api_administration
 
-    get "/all_users", AdministrationController, :show
-    delete "/user/:id", AdministrationController, :delete
+    get "/all_users", UserController, :show
+    delete "/user/:id", UserController, :delete
+    get "/all_products", ProductController, :show_all_products
   end
 
   def handle_errors(conn, _details) do
@@ -62,7 +66,6 @@ defmodule TrashShopWeb.Router do
         HTTPErrors.internal_error(conn)
 
       404 ->
-        render(conn, "404.json")
         HTTPErrors.not_found(conn)
     end
   end

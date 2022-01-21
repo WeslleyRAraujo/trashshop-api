@@ -23,4 +23,8 @@ defmodule TrashShopWeb.HTTPErrors do
   def internal_error(conn, message \\ "internal_error") do
     throw_error(conn, message, 500)
   end
+
+  def rate_limiter(conn, message \\ "rate_limiter") do
+    throw_error(conn, message, 429)
+  end
 end

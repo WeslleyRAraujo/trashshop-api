@@ -47,7 +47,8 @@ defmodule TrashShop.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:guardian, "~> 2.0"},
       {:params, "~> 2.0"},
-      {:argon2_elixir, "~> 2.0"}
+      {:argon2_elixir, "~> 2.0"},
+      {:hammer, "~> 6.0"}
     ]
   end
 

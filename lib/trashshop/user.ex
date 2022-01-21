@@ -81,9 +81,14 @@ defmodule TrashShop.User do
   def get_all(), do: Repo.all(TrashShop.User)
 
   def delete(id) do
-    case find(id: id) do
-      nil -> {:error, :not_found}
-      user -> Repo.delete(user)
+    try do
+      case find(id: id) do
+        nil -> {:error, :not_found}
+        user -> Repo.delete(user)
+      end
+    rescue
+      error in Ecto.ConstraintError ->
+        {:error, error.constraint}
     end
   end
 end
