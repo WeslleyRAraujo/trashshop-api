@@ -34,12 +34,10 @@ defmodule TrashShopWeb.UserController do
   end
 
   def info(conn, %{"id" => id}) do
-    case User.find(id: id) do
-      nil ->
-        HTTPErrors.not_found(conn)
-
-      user ->
-        render(conn, "user.json", user: user)
+    if String.to_integer(id) == conn.assigns.user.id do
+      render(conn, "user.json", user: User.find(id: id))
+    else
+      HTTPErrors.bad_request(conn)
     end
   end
 

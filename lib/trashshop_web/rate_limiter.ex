@@ -1,6 +1,8 @@
 defmodule ThingWeb.RateLimiter do
   alias TrashShopWeb.HTTPErrors
 
+  require Logger
+
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -23,6 +25,7 @@ defmodule ThingWeb.RateLimiter do
   end
 
   defp check_ip(ip) do
+    Logger.info("IP: #{ip}")
     case Hammer.check_rate(ip, 60_000, 4) do
       {:allow, _count} ->
         :allow
