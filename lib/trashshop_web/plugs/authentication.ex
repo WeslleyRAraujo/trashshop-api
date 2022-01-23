@@ -13,7 +13,9 @@ defmodule TrashShopWeb.Plugs.Authentication do
          {:ok, claims} <- GuardianModule.decode_and_verify(token),
          true <- check_if_user_exists(claims),
          {:ok, user} <- GuardianModule.resource_from_claims(claims) do
-      assign(conn, :user, user)
+      conn
+      |> assign(:user, user)
+      |> assign(:token, token)
     else
       {:error, :token_not_found} ->
         HTTPErrors.unauthorized(conn)

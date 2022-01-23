@@ -7,7 +7,7 @@ defmodule ThingWeb.RateLimiter do
 
   def call(conn, _opts) do
     conn
-    |> get_ip()
+    |> get_token()
     |> check_ip()
     |> case do
       :allow ->
@@ -18,15 +18,18 @@ defmodule ThingWeb.RateLimiter do
     end
   end
 
-  defp get_ip(conn) do
+  def get_token(conn), do: conn.assigns.token
+
+  def get_ip(conn) do
     conn.remote_ip
     |> Tuple.to_list()
     |> Enum.join(".")
   end
 
-  defp check_ip(ip) do
-    Logger.info("IP: #{ip}")
-    case Hammer.check_rate(ip, 60_000, 4) do
+  defp check_ip(identifier) do
+    Logger.info("Identifier: #{identifier}")
+
+    case Hammer.check_rate(identifier, 60_000, 4) do
       {:allow, _count} ->
         :allow
 
