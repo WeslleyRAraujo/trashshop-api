@@ -17,12 +17,12 @@ defmodule TrashShopWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug TrashShopWeb.Plugs.Authentication
-    plug RateLimiter
+    # plug RateLimiter
   end
 
   pipeline :api_administration do
     plug TrashShopWeb.Plugs.Administration
-    plug RateLimiter
+    # plug RateLimiter
   end
 
   # scope "/", TrashShopWeb do
